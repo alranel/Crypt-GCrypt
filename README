@@ -1,4 +1,4 @@
-# $Id: README,v 1.0 2005/10/09 19:38 $
+$Id
 
 --------
 Abstract
@@ -24,7 +24,7 @@ and then you can install it just doing:
 	$  make
 	#  make install
 
-Crypt::GCrypt was tested with libgcrypt 1.2.2.
+Crypt::GCrypt was tested with libgcrypt 1.2.4.
 
 ------------------
 Basic Installation
