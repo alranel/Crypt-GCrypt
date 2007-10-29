@@ -41,7 +41,7 @@ unless ($gcrypt_libpath) {
 }
 
 unless ($libfound) {
-    die <<'PREREQ_MISSING;';
+    print <<'PREREQ_MISSING;';
 
 libgcrypt must be installed prior to building Crypt::GCrypt and I can't 
 find it in the standard library directories. You can download it from:
@@ -67,6 +67,7 @@ you may (on some platforms) also have to set your LD_LIBRARY_PATH environment
 variable at run time for perl to find the library.
 
 PREREQ_MISSING;
+    exit 0;
   }
 }
 
