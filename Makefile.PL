@@ -87,6 +87,7 @@ WriteMakefile(
     'VERSION_FROM'	=> 'GCrypt.pm',
     'LIBS'		=> $libs,
     'DEFINE'		=> '',
+    'CCFLAGS'       => '-funsigned-char',
     'dist'         	=> { COMPRESS => 'gzip', SUFFIX => 'gz' },
     @extras
 );
