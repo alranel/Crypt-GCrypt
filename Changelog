@@ -1,3 +1,5 @@
+version 1.17 (2007/10/29):
+
     - removed warnings on platforms with signed chars
       (untested)
 
