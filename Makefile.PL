@@ -2,6 +2,7 @@ use ExtUtils::MakeMaker;
 use Config;
 use strict;
 use warnings;
+use 5.006000;
 
 our $gcrypt_libpath = '';
 our $gcrypt_incpath = '';
