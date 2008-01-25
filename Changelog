@@ -1,7 +1,7 @@
     - added an optimization to make the new API a bit retrocompatible
       in some special cases
     
-    - padding regognition is more robust
+    - padding recognition is more robust
 
     - [API CHANGE] ->finish() is now required after decrypting, because
       the previous implementation contained a bug when decrypting data 
