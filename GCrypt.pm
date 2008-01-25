@@ -15,7 +15,7 @@ package Crypt::GCrypt;
 use strict;
 use warnings;
 
-our $VERSION = '1.17';
+our $VERSION = '1.18';
 
 require XSLoader;
 XSLoader::load('Crypt::GCrypt', $VERSION);

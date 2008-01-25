@@ -1,3 +1,5 @@
+version 1.18 (2008/01/25):
+
     - new "none" padding method
 
     - added an optimization to make the new API a bit retrocompatible
