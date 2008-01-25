@@ -336,7 +336,6 @@ cg_finish(gcr)
                 
                 /* Remove padding */
                 return_len = find_padding(gcr, (unsigned char *) obuf, return_len);
-                printf("return_len = %d\n", return_len);
     		}
             
             RETVAL = newSVpvn(obuf, return_len);
