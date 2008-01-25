@@ -41,10 +41,11 @@ Crypt::GCrypt - Perl interface to the GNU Cryptographic library
   $cipher->setkey('my secret key');
   $cipher->setiv('my init vector');
 
-  $ciphertext = $cipher->encrypt('plaintext');
+  $ciphertext  = $cipher->encrypt('plaintext');
   $ciphertext .= $cipher->finish;
 
   $plaintext  = $cipher->decrypt($ciphertext);
+  $plaintext .= $cipher->finish;
 
 =head1 ABSTRACT
 
@@ -234,12 +235,14 @@ end you'll have to call L</"finish()">.
 =head2 finish()
 
     $ciphertext .= $cipher->finish;
+    
+    $plaintext .= $cipher->finish;
 
 The CBC algorithm must buffer data blocks internally until there are even 
 multiples of the encryption algorithm's blocksize (typically 8 or 16 bytes).
-After the last call to encrypt() you should call finish() to flush the internal
-buffer and return any leftover ciphertext. The internal buffer will be padded
-before encryption (see the L</padding> option above).
+After the last call to encrypt() or decrypt() you should call finish() to flush 
+the internal buffer and return any leftover data. This method will also take care
+of padding/unpadding of data (see the L</padding> option above).
 
 =head2 decrypt()
 

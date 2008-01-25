@@ -1,3 +1,11 @@
+    - [API CHANGE] ->finish() is now required after decrypting, because
+      the previous implementation contained a bug when decrypting data 
+      in multiple calls to ->decrypt(): the module tried to strip
+      padding at every call, thus removing wrong bytes in some cases.
+      Added the 06-multi.t test and a warning for users who don't 
+      call the ->finish() method.
+      (thanks to Paul Kolano for bug report and test case)
+
 version 1.17 (2007/10/29):
 
     - removed warnings on platforms with signed chars
