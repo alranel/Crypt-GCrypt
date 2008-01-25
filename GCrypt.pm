@@ -183,6 +183,11 @@ Only for text strings. The block will be padded with null bytes (00). If the las
 block is a full block and blocksize is 8, a block of "0000000000000000" will be 
 appended.
 
+=item B<none>
+
+By setting the padding method to "none", Crypt::GCrypt will only accept a multiple
+of blklen as input for L</"encrypt()">.
+
 =back
 
 =item secure

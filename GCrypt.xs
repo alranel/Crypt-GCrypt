@@ -36,6 +36,7 @@ enum cg_action
 };
 enum cg_padding
 {
+    CG_PADDING_NONE,
 	CG_PADDING_STANDARD,
 	CG_PADDING_NULL,
 	CG_PADDING_SPACE
@@ -146,6 +147,8 @@ cg_new(...)
 			}
 			if (strcmp(s, "padding") == 0) {
 				s = SvPV_nolen(ST(i+1));
+				if (strcmp(s, "none") == 0)
+					RETVAL->padding = CG_PADDING_NONE;
 				if (strcmp(s, "standard") == 0)
 					RETVAL->padding = CG_PADDING_STANDARD;
 				if (strcmp(s, "null") == 0)
@@ -233,6 +236,9 @@ cg_encrypt(gcr, in)
     		croak("start('encrypting') was not called");
     	
 		ibuf = SvPV(in, ilen);
+		
+		if (gcr->padding == CG_PADDING_NONE && ilen % gcr->blklen > 0)
+            croak("'None' padding requires that input to ->encrypt() is supplied as a multiple of blklen");
 		
 		/* Get total buffer+ibuf length */
 		Newz(0, curbuf, ilen + gcr->buflen, char);

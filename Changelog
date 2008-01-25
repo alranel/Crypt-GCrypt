@@ -1,3 +1,5 @@
+    - new "none" padding method
+
     - added an optimization to make the new API a bit retrocompatible
       in some special cases
     
