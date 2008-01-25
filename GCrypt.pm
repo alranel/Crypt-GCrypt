@@ -255,6 +255,8 @@ of padding/unpadding of data (see the L</padding> option above).
 
 The counterpart to encrypt, decrypt takes a I<$ciphertext> and produces the
 original plaintext (given that the right key was used, of course).
+The output is buffered; this means that you'll only get multiples of $cipher's 
+block size and that at the end you'll have to call L</"finish()">.
 
 =head2 keylen()
 
