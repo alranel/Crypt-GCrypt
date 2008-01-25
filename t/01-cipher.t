@@ -86,7 +86,7 @@ ok($e eq pack('H*', '02a98d20a176729ea7cd'))
   or print STDERR "[",unpack('H*',$e),"]\n";
 $c->setkey($key);
 $c->start('decrypting');
-$d = $c->decrypt($e);
+$d = $c->decrypt($e);print "before finish\n";
 $d .= $c->finish;
 ok(substr($d, 0, length $p) eq $p)
  or print STDERR "[$d|",unpack('H*',$d),"]\n";
