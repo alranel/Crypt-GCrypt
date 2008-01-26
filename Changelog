@@ -1,3 +1,5 @@
+    - added Devel::CheckLib
+
 version 1.20 (2008/01/25):
 
     - new "none" padding method

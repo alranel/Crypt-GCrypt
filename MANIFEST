@@ -1,3 +1,4 @@
+inc/Devel/CheckLib.pm
 Changelog
 GCrypt.pm
 GCrypt.xs

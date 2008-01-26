@@ -1,3 +1,5 @@
+use lib qw(inc);
+use Devel::CheckLib;
 use ExtUtils::MakeMaker;
 use Config;
 use strict;
@@ -29,6 +31,10 @@ if (not $gcrypt_libpath and $] >= 5.006001) {
 	require ExtUtils::Liblist;		# Buggy before this
 	($gcrypt_libpath) = ExtUtils::Liblist->ext('-lgcrypt');
 }
+
+check_lib_or_exit(
+    lib => [qw(gcrypt)], libpath => $gcrypt_libpath
+);
 
 # 
 my $libfound = 0;
