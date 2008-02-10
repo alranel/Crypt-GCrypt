@@ -1,7 +1,7 @@
-inc/Devel/CheckLib.pm
 Changelog
-GCrypt.pm
 GCrypt.xs
+inc/Devel/CheckLib.pm
+lib/Crypt/GCrypt.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP

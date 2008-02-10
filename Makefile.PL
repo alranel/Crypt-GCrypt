@@ -91,7 +91,7 @@ WriteMakefile(
     'NAME'		=> 'Crypt::GCrypt',
     'ABSTRACT'	=> 'Perl interface to the GNU libgcrypt library',
     'AUTHOR'	=> 'Alessandro Ranellucci <aar@cpan.org>',
-    'VERSION_FROM'	=> 'GCrypt.pm',
+    'VERSION_FROM'	=> 'lib/Crypt/GCrypt.pm',
     'LIBS'		=> $libs,
     'DEFINE'		=> '',
     'CCFLAGS'       => '-funsigned-char',
