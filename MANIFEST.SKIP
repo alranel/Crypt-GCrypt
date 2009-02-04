@@ -1,6 +1,7 @@
 makedocs.pl
 \.shipit
 \.brackup$
+\.DS_Store$
 
 # Avoid version control files.
 \bRCS\b
