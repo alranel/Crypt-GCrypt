@@ -14,7 +14,8 @@ Requirements
 ------------
 
 Crypt::GCrypt requires that libgcrypt is installed on your system. You can
-download the latest version of libgcrypt at the GNU site:
+use your favourite package manager or download the latest version of libgcrypt 
+at the GNU site:
 
 ftp://ftp.gnupg.org/gcrypt/libgcrypt/
 
@@ -25,6 +26,19 @@ and then you can install it just doing:
 	#  make install
 
 Crypt::GCrypt was tested with libgcrypt 1.2.4.
+
+If libgcrypt is installed, but in a non-standard directory, then use the
+following options to Makefile.PL:
+
+    GCRYPTLIBPATH=...  To set the directory in which to find libgcrypt
+    GCRYPTINCPATH=...  To set the directory in which to find gcrypt.h
+
+For example:
+    perl Makefile.PL GCRYPTLIBPATH=/home/me/lib GCRYPTINCPATH=/home/me/include
+
+Note that if you build against a shareable library in a non-standard location
+you may (on some platforms) also have to set your LD_LIBRARY_PATH environment
+variable at run time for perl to find the library.
 
 ------------------
 Basic Installation
