@@ -1,3 +1,5 @@
+    - now thread-safe (patch by Daniel K. Gillmor)
+
 version 1.21 (2009/02/04):
 
     - added Devel::CheckLib to avoid FAIL reports from CPAN testers

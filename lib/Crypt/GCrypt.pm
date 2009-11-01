@@ -279,6 +279,11 @@ does not feed less than a byte into the cipher.
 
 Apply the CFB sync operation.
 
+=head1 THREAD SAFETY
+
+libgcrypt is initialized with support for Pthread, so this module should be 
+thread safe.
+
 =head1 BUGS AND FEEDBACK
 
 There are no known bugs. You are very welcome to write mail to the author 
@@ -291,14 +296,15 @@ Alessandro Ranellucci E<lt>aar@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005 Alessandro Ranellucci.
+Copyright (c) Alessandro Ranellucci.
 Crypt::GCrypt is free software, you may redistribute it and/or modify it under 
 the same terms as Perl itself.
 
 =head1 ACKNOWLEDGEMENTS
 
 This module was initially inspired by the GCrypt.pm bindings made by 
-Robert Bihlmeyer in 2002. Thanks to users who give feedback (see Changelog).
+Robert Bihlmeyer in 2002. Thanks to users who give feedback and submit 
+patches (see Changelog).
 
 =head1 DISCLAIMER
 

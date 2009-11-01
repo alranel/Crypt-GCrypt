@@ -96,6 +96,32 @@ int find_padding (Crypt_GCrypt gcr, unsigned char *string, size_t string_len) {
     return -1;
 }
 
+GCRY_THREAD_OPTION_PTHREAD_IMPL;
+
+void
+init_library() {
+  gcry_error_t ret;
+  if (gcry_control(GCRYCTL_INITIALIZATION_FINISHED_P)) {
+    /* we just need to make sure that the right version is available */
+    if (!gcry_check_version(GCRYPT_VERSION))
+      croak("libgcrypt version mismatch (needed: %s)", GCRYPT_VERSION);
+    return;
+  }
+  /* else, we need to go ahead with the full initialization: */
+  ret = gcry_control(GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+  if (gcry_err_code(ret) != GPG_ERR_NO_ERROR)
+    croak("could not initialize libgcrypt for threads (%d: %s/%s)", 
+	  gcry_err_code(ret),
+	  gcry_strsource(ret),
+	  gcry_strerror(ret));
+  
+  if (!gcry_check_version(GCRYPT_VERSION))
+    croak("libgcrypt version mismatch (needed: %s)", GCRYPT_VERSION);
+
+  gcry_control(GCRYCTL_INITIALIZATION_FINISHED);
+}
+
+
 MODULE = Crypt::GCrypt        PACKAGE = Crypt::GCrypt    PREFIX = cg_
 
 Crypt_GCrypt
@@ -166,6 +192,8 @@ cg_new(...)
             croak("No type specified for Crypt::GCrypt->new()");
         if (!algo_s)
             croak("No algorithm specified for Crypt::GCrypt->new()");
+
+        init_library();
 
         if (RETVAL->type == CG_TYPE_CIPHER) {
             /* Checking algorithm */
