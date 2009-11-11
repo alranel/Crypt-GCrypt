@@ -5,7 +5,6 @@
  Perl interface to the GNU Cryptographic library
  
  Author: Alessandro Ranellucci <aar@cpan.org>
- Copyright (c) 2005.
  
  Use this software AT YOUR OWN RISK.
  ===========================================================================
@@ -26,7 +25,8 @@ static const char author[] = "Alessandro Ranellucci <aar@cpan.org>";
 enum cg_type
 {
     CG_TYPE_CIPHER,
-    CG_TYPE_ASYMM
+    CG_TYPE_ASYMM,
+    CG_TYPE_DIGEST
 };
 enum cg_action
 {
@@ -47,13 +47,13 @@ struct Crypt_GCrypt_s {
     int action;
     gcry_cipher_hd_t h;
     gcry_ac_handle_t h_ac;
+    gcry_md_hd_t h_md;
     gcry_ac_key_t key_ac;
     gcry_error_t err;
     int mode;
     int padding;
-    unsigned int blklen, keylen;
     unsigned char *buffer;
-    size_t buflen;
+    STRLEN buflen, blklen, keylen;
     int need_to_call_finish;
     int buffer_is_decrypted;
 };
@@ -111,9 +111,9 @@ init_library() {
   ret = gcry_control(GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
   if (gcry_err_code(ret) != GPG_ERR_NO_ERROR)
     croak("could not initialize libgcrypt for threads (%d: %s/%s)", 
-	  gcry_err_code(ret),
-	  gcry_strsource(ret),
-	  gcry_strerror(ret));
+      gcry_err_code(ret),
+      gcry_strsource(ret),
+      gcry_strerror(ret));
   
   if (!gcry_check_version(GCRYPT_VERSION))
     croak("libgcrypt version mismatch (needed: %s)", GCRYPT_VERSION);
@@ -128,9 +128,9 @@ Crypt_GCrypt
 cg_new(...)
     PROTOTYPE: @
     INIT:
-        char *s, *algo_s, *mode_s;
+        char *s, *algo_s, *mode_s, *key_s;
         int i, algo, mode;
-        unsigned int c_flags, ac_flags;
+        unsigned int c_flags, ac_flags, md_flags;
         gcry_ac_id_t ac_algo;
         bool have_mode;
     CODE:
@@ -150,8 +150,10 @@ cg_new(...)
         RETVAL->action = CG_ACTION_NONE;
         RETVAL->need_to_call_finish = 0;
         RETVAL->buffer_is_decrypted = 0;
+        RETVAL->buffer = NULL;
         c_flags = 0;
         ac_flags = 0;
+        md_flags = 0;
         have_mode = 0;
         
         /* Let's get parameters: */
@@ -163,6 +165,8 @@ cg_new(...)
                     RETVAL->type = CG_TYPE_CIPHER;
                 if (strcmp(s, "asymm") == 0)
                     RETVAL->type = CG_TYPE_ASYMM;
+                if (strcmp(s, "digest") == 0)
+                    RETVAL->type = CG_TYPE_DIGEST;
             }
             if (strcmp(s, "algorithm") == 0) {
                 algo_s = SvPV_nolen(ST(i+1));
@@ -181,7 +185,14 @@ cg_new(...)
                     RETVAL->padding = CG_PADDING_NULL;
             }
             if (strcmp(s, "secure") == 0) {
-                if (SvTRUE(ST(i+1))) c_flags |= GCRY_CIPHER_SECURE;
+                if (SvTRUE(ST(i+1))) {
+                   c_flags |= GCRY_CIPHER_SECURE;
+                   md_flags |= GCRY_MD_FLAG_SECURE;
+                }
+            }
+            if (strcmp(s, "hmac") == 0) {
+                key_s = SvPV(ST(i+1), RETVAL->keylen);
+                md_flags |= GCRY_MD_FLAG_HMAC;
             }
             if (strcmp(s, "enable_sync") == 0) {
                 if (SvTRUE(ST(i+1))) c_flags |= GCRY_CIPHER_ENABLE_SYNC;
@@ -189,7 +200,7 @@ cg_new(...)
             i = i + 2;
         }
         if (RETVAL->type == -1)
-            croak("No type specified for Crypt::GCrypt->new()");
+            croak("No valid type specified for Crypt::GCrypt->new()");
         if (!algo_s)
             croak("No algorithm specified for Crypt::GCrypt->new()");
 
@@ -198,9 +209,9 @@ cg_new(...)
         if (RETVAL->type == CG_TYPE_CIPHER) {
             /* Checking algorithm */
             if (!(algo = gcry_cipher_map_name(algo_s)))
-                croak("Unknown algorithm %s", algo_s);
+                croak("Unknown cipher algorithm %s", algo_s);
             RETVAL->blklen = gcry_cipher_get_algo_blklen(algo);
-            RETVAL->keylen  = gcry_cipher_get_algo_keylen(algo);
+            RETVAL->keylen = gcry_cipher_get_algo_keylen(algo);
             
             /* Checking mode */
             if (have_mode) {
@@ -235,6 +246,18 @@ cg_new(...)
             RETVAL->err = gcry_cipher_open(&RETVAL->h, algo, RETVAL->mode, c_flags);
             if (RETVAL->h == NULL) XSRETURN_UNDEF;
         }
+        if (RETVAL->type == CG_TYPE_DIGEST) {
+            if (!(algo = gcry_md_map_name(algo_s)))
+                croak("Unknown digest algorithm %s", algo_s);
+
+        RETVAL->err = gcry_md_open(&RETVAL->h_md, algo, md_flags);
+            if (RETVAL->h_md == NULL) XSRETURN_UNDEF;
+
+        if (md_flags & GCRY_MD_FLAG_HMAC) {
+            /* what if this overwrites the earlier error value? */
+            RETVAL->err = gcry_md_setkey(RETVAL->h_md, key_s, RETVAL->keylen);
+        }
+    }
         if (RETVAL->type == CG_TYPE_ASYMM) {
         
             croak("Asymmetric cryptography is not yet supported by Crypt::GCrypt");
@@ -308,6 +331,8 @@ cg_finish(gcr)
         char *obuf;
         size_t rlen, return_len, padding_length;
     CODE:
+        if (gcr->type != CG_TYPE_CIPHER)
+            croak("Can't call finish when doing non-cipher operations");
         gcr->need_to_call_finish = 0;
         if (gcr->action == CG_ACTION_ENCRYPT) {
             
@@ -477,6 +502,7 @@ cg_start(gcr, act)
         size_t len;
     CODE:
         gcr->err = gcry_cipher_reset(gcr->h);
+        Safefree(gcr->buffer);
         New(0, gcr->buffer, gcr->blklen, unsigned char);
         gcr->buflen = 0;
         gcr->need_to_call_finish = 1;
@@ -592,11 +618,73 @@ cg_blklen(gcr)
         RETVAL
 
 void
+cg_reset(gcr)
+    Crypt_GCrypt gcr;
+    CODE:
+        if (gcr->type != CG_TYPE_DIGEST)
+            croak("Can't call reset when doing non-digest operations");
+        gcry_md_reset(gcr->h_md);
+
+void
+cg_write(gcr, in)
+    Crypt_GCrypt gcr;
+    SV *in;
+    PREINIT:
+        char *ibuf;
+        size_t ilen;
+    CODE:
+        if (gcr->type != CG_TYPE_DIGEST)
+            croak("Can't call write when doing non-digest operations.");
+        ibuf = SvPV(in, ilen);
+        gcry_md_write(gcr->h_md, ibuf, ilen);
+
+SV *
+cg_read(gcr)
+    Crypt_GCrypt gcr;
+    PREINIT:
+        unsigned char *output;
+        size_t len;
+    CODE:
+        if (gcr->type != CG_TYPE_DIGEST)
+            croak("Can't call read when doing non-digest operations.");
+        output = gcry_md_read(gcr->h_md, 0);
+        len = gcry_md_get_algo_dlen(gcry_md_get_algo(gcr->h_md));
+        RETVAL = newSVpvn((const char *) output, len);
+    OUTPUT:
+        RETVAL
+
+int
+cg_digest_length(gcr)
+    Crypt_GCrypt gcr;
+    CODE:
+        if (gcr->type != CG_TYPE_DIGEST)
+            croak("Can't call digest_length when doing non-digest operations");
+        RETVAL = gcry_md_get_algo_dlen(gcry_md_get_algo(gcr->h_md));
+    OUTPUT:
+        RETVAL
+
+Crypt_GCrypt
+cg_clone(gcr)
+    Crypt_GCrypt gcr;
+    CODE:
+        if (gcr->type != CG_TYPE_DIGEST)
+            croak("Crypt::GCrypt::clone() is only currently defined for digest objects");
+        
+        New(0, RETVAL, 1, struct Crypt_GCrypt_s);
+        Copy(gcr, RETVAL, 1, struct Crypt_GCrypt_s);
+        /* if we allow clone() for cipher objects, we should duplicate the buffer */
+        RETVAL->err = gcry_md_copy(&RETVAL->h_md, gcr->h_md);
+        if (RETVAL->h_md == NULL) XSRETURN_UNDEF;
+    OUTPUT:
+        RETVAL
+
+void
 cg_DESTROY(gcr)
     Crypt_GCrypt gcr;
     CODE:
         if (gcr->type == CG_TYPE_CIPHER) gcry_cipher_close(gcr->h);
         if (gcr->type == CG_TYPE_ASYMM)  gcry_ac_close(gcr->h_ac);
+        if (gcr->type == CG_TYPE_DIGEST) gcry_md_close(gcr->h_md);
         
         if (gcr->need_to_call_finish == 1)
             warn("WARNING: the ->finish() method was not called after encryption/decryption.");

@@ -31,7 +31,7 @@ Crypt::GCrypt - Perl interface to the GNU Cryptographic library
 
   use Crypt::GCrypt;
   
-  $cipher = Crypt::GCrypt->new(
+  my $cipher = Crypt::GCrypt->new(
     type => 'cipher',
     algorithm => 'aes', 
     mode => 'cbc'
@@ -41,17 +41,17 @@ Crypt::GCrypt - Perl interface to the GNU Cryptographic library
   $cipher->setkey('my secret key');
   $cipher->setiv('my init vector');
 
-  $ciphertext  = $cipher->encrypt('plaintext');
+  my $ciphertext  = $cipher->encrypt('plaintext');
   $ciphertext .= $cipher->finish;
 
-  $plaintext  = $cipher->decrypt($ciphertext);
+  my $plaintext  = $cipher->decrypt($ciphertext);
   $plaintext .= $cipher->finish;
 
 =head1 ABSTRACT
 
 Crypt::GCrypt provides an object interface to the C libgcrypt library. It
-currently supports symmetric encryption/decryption, while asymmetric 
-cryptography is being worked on.
+currently supports symmetric encryption/decryption and message digests, 
+while asymmetric cryptography is being worked on.
 
 =head1 SYMMETRIC CRYPTOGRAPHY
 
@@ -60,7 +60,7 @@ cryptography is being worked on.
 In order to encrypt/decrypt your data using a symmetric cipher you first have
 to build a Crypt::GCrypt object:
 
-  $cipher = Crypt::GCrypt->new(
+  my $cipher = Crypt::GCrypt->new(
     type => 'cipher',
     algorithm => 'aes', 
     mode => 'cbc'
@@ -192,8 +192,8 @@ of blklen as input for L</"encrypt()">.
 
 =item secure
 
-All data associated with this cipher will be put into non-swappable storage, 
-if possible.
+If this option is set to a true value, all data associated with this cipher will be 
+put into non-swappable storage, if possible.
 
 =item enable_sync
 
@@ -279,6 +279,97 @@ does not feed less than a byte into the cipher.
 
 Apply the CFB sync operation.
 
+=head1 MESSAGE DIGESTS
+
+=head2 new()
+
+In order to create a message digest, you first have to build a
+Crypt::GCrypt object:
+
+  my $digest = Crypt::GCrypt->new(
+    type => 'digest',
+    algorithm => 'sha256',
+  );
+
+The I<type> argument must be "digest" and I<algorithm> is required too. See below
+for a description of available algorithms and other initialization parameters:
+
+=over 4
+
+=item algorithm
+
+This may be one of the following hash algorithms:
+
+=over 8
+
+=item B<md4>
+
+=item B<md5>
+
+=item B<ripemd160>
+
+=item B<sha1>
+
+=item B<sha224>
+
+=item B<sha256>
+
+=item B<sha384>
+
+=item B<sha512>
+
+=item B<tiger192>
+
+=item B<whirlpool>
+
+=back
+
+=item secure
+
+If this option is set to a true value, all data associated with this cipher will be 
+put into non-swappable storage, if possible.
+
+=item hmac
+
+If the digest is expected to be used as a keyed-Hash Message
+Authentication Code (HMAC), supply the key with this argument.  It is
+good practice to ensure that the key is at least as long as the digest
+used.
+
+=back
+
+Once you've got your digest object the following methods are available:
+
+=head2 digest_length()
+
+Returns the length in bytes of the digest produced by this algorithm.
+
+=head2 write()
+
+    $digest->write($data);
+
+Feeds data into the hash context.  Once you have called read(), this 
+method can't be called anymore.
+
+=head2 reset()
+
+Re-initializes the digest with the same parameters it was initially
+created with.  This allows write()ing again, after a call to read().
+
+=head2 clone()
+
+Creates a new digest object with the exact same internal state.  This
+is useful if you want to retrieve intermediate digests (i.e.  read()
+from the copy and continue write()ing to the original).
+
+=head2 read()
+
+    $md = $digest->read();
+
+Completes the digest and return the resultant string.  You can call this
+multiple times, and it will return the same information.  Once a
+digest object has been read(), it may not be written to.
+
 =head1 THREAD SAFETY
 
 libgcrypt is initialized with support for Pthread, so this module should be 
@@ -290,9 +381,11 @@ There are no known bugs. You are very welcome to write mail to the author
 (aar@cpan.org) with your contributions, comments, suggestions, bug reports 
 or complaints.
 
-=head1 AUTHOR
+=head1 AUTHORS AND CONTRIBUTORS
 
 Alessandro Ranellucci E<lt>aar@cpan.orgE<gt>
+
+Daniel K. Gillmor (message digests)
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -321,3 +414,4 @@ arising in any way out of the use of this software, even if advised of the
 possibility of such damage.
 
 =cut
+

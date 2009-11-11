@@ -14,4 +14,7 @@ t/03-pod.t
 t/04-podcoverage.t
 t/05-size.t
 t/06-multi.t
+t/07-thread.t
+t/08-digest.t
+t/09-clone-digest.t
 typemap
