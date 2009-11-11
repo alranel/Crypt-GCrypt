@@ -326,8 +326,8 @@ This may be one of the following hash algorithms:
 
 =item secure
 
-If this option is set to a true value, all data associated with this cipher will be 
-put into non-swappable storage, if possible.
+If this option is set to a true value, all data associated with this 
+digest will beput into non-swappable storage, if possible.
 
 =item hmac
 
@@ -385,7 +385,7 @@ or complaints.
 
 Alessandro Ranellucci E<lt>aar@cpan.orgE<gt>
 
-Daniel K. Gillmor (message digests)
+Daniel Kahn Gillmor (message digests) E<lt>dkg@fifthhorseman.net<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
