@@ -3,17 +3,21 @@
 
 #########################
 
-use Test;
+use Test::More;
 use ExtUtils::testlib;
 use Crypt::GCrypt;
 use IO::Socket;
 
 #########################
 
-use threads ('yield',
-	     'stack_size' => 64*4096,
-	     'exit' => 'threads_only',
-	     'stringify');
+eval q{
+    use threads 1.74 ('yield',
+    	     'stack_size' => 64*4096,
+    	     'exit' => 'threads_only',
+    	     'stringify'); 1;
+};
+plan skip_all => 'A modern threads.pm (at least 1.74) is required to run this test' if $@;
+
 
 my @algos = ('aes', 'twofish', 'blowfish', 'arcfour', 'cast5', 'des', 'serpent', 'seed');
 
@@ -79,4 +83,4 @@ for my $thr (threads->list(threads::all)) {
   ok($thr->join());
 }
 
-
+
