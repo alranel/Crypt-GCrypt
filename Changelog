@@ -1,3 +1,5 @@
+    - new 07-thread.t test (Daniel K. Gillmor)
+
 version 1.22 (2009/11/01):
 
     - now thread-safe (patch by Daniel K. Gillmor)
