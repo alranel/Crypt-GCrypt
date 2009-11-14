@@ -9,20 +9,20 @@ use Crypt::GCrypt;
 
 #########################
 
-# SHA512 progressive digests (can we read what the digest should be along the way?):
+# SHA1 progressive digests (can we read what the digest should be along the way?):
 
 my %dgsts = (
-  '' => 'cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e',
-  'a' => '1f40fc92da241694750979ee6cf582f2d5d7d28e18335de05abc54d0560e0f5302860c652bf08d560252aa5e74210546f369fbbbce8c12cfc7957b2652fe9a75',
-  'abc' => 'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f',
-  'abcdefghijklmnopqrstuvwxyz' => '4dbff86cc2ca1bae1e16468a05cb9881c97f1753bce3619034898faa1aabe429955a1bf8ec483d7421fe3c1646613a59ed5441fb0f321389f77f48a879c7b1f1',
+    '' => 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
+    'a' => '86f7e437faa5a7fce15d1ddcb9eaeaea377667b8',
+    'abc' => 'a9993e364706816aba3e25717850c26c9cd0d89d',
+    'abcdefghijklmnopqrstuvwxyz' => '32d10c7b8cf96570ca04ce37f2a19d84240d3a89',
 );
 
 plan tests => 5;
 
 my $md0 = Crypt::GCrypt->new(
 			     type => 'digest',
-			     algorithm => 'sha512',
+			     algorithm => 'sha1',
 			    );
 my $result;
 
