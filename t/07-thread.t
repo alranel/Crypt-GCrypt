@@ -10,14 +10,7 @@ use IO::Socket;
 
 #########################
 
-eval q{
-    use threads 1.74 ('yield',
-    	     'stack_size' => 64*4096,
-    	     'exit' => 'threads_only',
-    	     'stringify'); 1;
-};
-plan skip_all => 'A modern threads.pm (at least 1.74) is required to run this test' if $@;
-
+use threads;
 
 my @algos = ('aes', 'twofish', 'blowfish', 'arcfour', 'cast5', 'des', 'serpent', 'seed');
 
@@ -79,8 +72,9 @@ for my $algo (@algos) {
   testalgo($algo);
 }
 
-for my $thr (threads->list(threads::all)) {
+for my $thr (threads->list()) {
   ok($thr->join());
 }
+
 
 
