@@ -3,6 +3,8 @@
 
 #########################
 
+use strict;
+use warnings;
 use Test::More;
 use ExtUtils::testlib;
 use Crypt::GCrypt;
@@ -23,6 +25,8 @@ sub producer_thread {
   my $enc = Crypt::GCrypt->new(
 			       type => 'cipher',
 			       algorithm => $algo,
+               	   #mode => 'cbc',
+               	   #padding => 'null'
 			      );
   $enc->start('encrypting');
   $enc->setkey($key);
@@ -40,6 +44,8 @@ sub consumer_thread {
   my $dec = Crypt::GCrypt->new(
 			       type => 'cipher',
 			       algorithm => $algo,
+                   #mode => 'cbc',
+                   #padding => 'null'
 			      );
   $dec->start('decrypting');
   $dec->setkey($key);
@@ -51,6 +57,7 @@ sub consumer_thread {
   }
   $p->close();
   $out .= $dec->finish();
+  printf("Failed to match output with algorithm '%s'\n", $algo) if ($str ne $out);
   return $str eq $out;
 }
 
@@ -62,19 +69,14 @@ sub testalgo {
   # create in scalar context so that the result is the returned scalar:
   my $con = threads->create('consumer_thread', $read, $algo);
   my $pro = threads->create('producer_thread', $write, $algo);
-
 }
 
 # test as many algorithms as we have.
-plan tests => @algos * (2);
+my @available_algos = grep Crypt::GCrypt::cipher_algo_available($_), @algos;
+plan tests => 2 * @available_algos;
 
-for my $algo (@algos) {
-  testalgo($algo);
-}
-
-for my $thr (threads->list()) {
-  ok($thr->join());
-}
+testalgo($_) for @available_algos;
+ok($_->join()) for threads->list();
 
 
 
