@@ -3,6 +3,8 @@
 
 #########################
 
+use strict;
+use warnings;
 use Test;
 use ExtUtils::testlib;
 use Crypt::GCrypt;
@@ -113,6 +115,7 @@ my %dgsts = (
     sha512 => '72ec1ef1124a45b047e8b7c75a932195135bb61de24ec0d1914042246e0aec3a2354e093d76f3048b456764346900cb130d2a4fd5dd16abb5e30bcb850dee843',
 #    tiger192 => '1c14795529fd9f207a958f84c52f11e887fa0cabdfd91bfd',
     whirlpool => '466ef18babb0154d25b9d38a6414f5c08784372bccb204d6549c4afadb6014294d5bd8df2a6c44e538cd047b2681a51a2c60481e88c5a20b2c2a80cf3a9a083b',
+    nosuchdigest => 'no such digest', # testing digest_algo_available()
   },
 );
 
@@ -202,25 +205,18 @@ my %hmacs = (
     sha256 => 'c89a7039a62985ff813fe4509b918a436d7b1ffd8778e2c24dec464849fb6128',
     sha384 => '5197498af7797baf158c2cfe0dcfc7fea5a5065cfb4009524b55293c56758f8810da4750c21d0a2a3986d09030751f83',
     sha512 => 'fdf83dc879e3476c8e8aceff2bf6fece2e4f39c7e1a167845465bb549dfa5ffe997e6c7cf3720eae51ed2b00ad2a8225375092290edfa9d48ec7e4bc8e276088',
+    nosuchdigest => 'no such digest', # testing digest_algo_available()
   },
 );
 
-my $testcount = 0;
+plan tests => scalar grep Crypt::GCrypt::digest_algo_available($_), map keys %$_, values %dgsts, values %hmacs;
+
 my $data;
 my $algo;
 
-for $data (keys %dgsts) {
-  $testcount += (keys %{$dgsts{$data}});
-}
-
-for $data (keys %hmacs) {
-  $testcount += (keys %{$hmacs{$data}});
-}
-
-plan tests => $testcount;
-
 for $data (sort keys %dgsts) {
   for $algo (sort keys %{$dgsts{$data}}) {
+    next unless Crypt::GCrypt::digest_algo_available($algo);
     my $md = Crypt::GCrypt->new(
 				type => 'digest',
 				algorithm => $algo,
@@ -235,6 +231,7 @@ for $data (sort keys %dgsts) {
 
 for $data (sort keys %hmacs) {
   for $algo (sort keys %{$hmacs{$data}}) {
+    next unless Crypt::GCrypt::digest_algo_available($algo);
     my $md = Crypt::GCrypt->new(
 				type => 'digest',
 				algorithm => $algo,
@@ -247,4 +244,4 @@ for $data (sort keys %hmacs) {
     ok($result eq $hmacs{$data}{$algo});
   }
 }
-
+

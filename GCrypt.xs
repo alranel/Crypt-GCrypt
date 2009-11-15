@@ -678,6 +678,28 @@ cg_clone(gcr)
     OUTPUT:
         RETVAL
 
+int
+cg_digest_algo_available(algo)
+    SV *algo;
+    PREINIT:
+        const char *algo_s;
+        STRLEN len;
+        int algo_id;
+    CODE:
+        algo_s = SvPV(algo, len);
+        init_library();
+        algo_id = gcry_md_map_name(algo_s);
+        if (algo_id) {
+            if (gcry_md_test_algo(algo_id))
+                RETVAL = 0;
+            else
+                RETVAL = 1;
+        } else {
+            RETVAL = 0;
+        }
+    OUTPUT:
+        RETVAL
+
 void
 cg_DESTROY(gcr)
     Crypt_GCrypt gcr;

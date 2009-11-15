@@ -281,6 +281,15 @@ Apply the CFB sync operation.
 
 =head1 MESSAGE DIGESTS
 
+=head2 digest_algo_available()
+
+Determines whether a given digest algorithm is available in the local
+gcrypt installation:
+
+   if (Crypt::GCrypt::digest_algo_available('sha256')) {
+      # do stuff with sha256
+   }
+
 =head2 new()
 
 In order to create a message digest, you first have to build a
@@ -298,7 +307,9 @@ for a description of available algorithms and other initialization parameters:
 
 =item algorithm
 
-This may be one of the following hash algorithms:
+Depending on your available version of gcrypt, this can be one of the
+following hash algorithms.  Note that some gcrypt installations do not
+implement certain algorithms (see digest_algo_available()).
 
 =over 8
 
@@ -342,6 +353,8 @@ Once you've got your digest object the following methods are available:
 
 =head2 digest_length()
 
+    my $len = $digest->digest_length();
+
 Returns the length in bytes of the digest produced by this algorithm.
 
 =head2 write()
@@ -364,7 +377,7 @@ from the copy and continue write()ing to the original).
 
 =head2 read()
 
-    $md = $digest->read();
+    my $md = $digest->read();
 
 Completes the digest and return the resultant string.  You can call this
 multiple times, and it will return the same information.  Once a
