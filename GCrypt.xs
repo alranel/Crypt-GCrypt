@@ -683,10 +683,9 @@ cg_digest_algo_available(algo)
     SV *algo;
     PREINIT:
         const char *algo_s;
-        STRLEN len;
         int algo_id;
     CODE:
-        algo_s = SvPV(algo, len);
+        algo_s = SvPV_nolen(algo);
         init_library();
         algo_id = gcry_md_map_name(algo_s);
         if (algo_id) {
