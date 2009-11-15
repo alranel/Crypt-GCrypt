@@ -1,3 +1,4 @@
+    - new cipher_algo_available() package function (Daniel Kahn Gillmor)
     - message digests (Daniel Kahn Gillmor)
     - new 07-thread.t test (Daniel Kahn Gillmor)
 

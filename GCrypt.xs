@@ -700,6 +700,27 @@ cg_digest_algo_available(algo)
     OUTPUT:
         RETVAL
 
+int
+cg_cipher_algo_available(algo)
+    SV *algo;
+    PREINIT:
+        const char *algo_s;
+        int algo_id;
+    CODE:
+        algo_s = SvPV_nolen(algo);
+        init_library();
+        algo_id = gcry_cipher_map_name(algo_s);
+        if (algo_id) {
+            if (gcry_cipher_algo_info(algo_id, GCRYCTL_TEST_ALGO, 0, 0))
+                RETVAL = 0;
+            else
+                RETVAL = 1;
+        } else {
+            RETVAL = 0;
+        }
+    OUTPUT:
+        RETVAL
+
 void
 cg_DESTROY(gcr)
     Crypt_GCrypt gcr;

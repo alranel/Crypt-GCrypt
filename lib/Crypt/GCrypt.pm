@@ -55,6 +55,15 @@ while asymmetric cryptography is being worked on.
 
 =head1 SYMMETRIC CRYPTOGRAPHY
 
+=head2 cipher_algo_available()
+
+Determines whether a given cipher algorithm is available in the local
+gcrypt installation:
+
+  if (Crypt::GCrypt::cipher_algo_available('aes')) {
+    # do stuff with aes
+  }
+
 =head2 new()
 
 In order to encrypt/decrypt your data using a symmetric cipher you first have

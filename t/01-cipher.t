@@ -4,13 +4,17 @@
 #########################
 
 use Test;
-BEGIN { plan tests => 17 }; # <--- number of tests
+BEGIN { plan tests => 20 }; # <--- number of tests
 
 use ExtUtils::testlib;
 use Crypt::GCrypt;
 ok(1);
 
 #########################
+
+ok(Crypt::GCrypt::cipher_algo_available('aes'));
+ok(Crypt::GCrypt::cipher_algo_available('arcfour'));
+ok(Crypt::GCrypt::cipher_algo_available('twofish'));
 
 my $c = Crypt::GCrypt->new(
 	type => 'cipher', 
