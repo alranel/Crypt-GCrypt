@@ -19,15 +19,49 @@ my @algos = ('aes', 'twofish', 'blowfish', 'arcfour', 'cast5', 'des', 'serpent',
 my $str = 'Four Score and Seven years ago, our fore-monkeys created a great blah blah blah';
 my $key = 'monkeymonkeymonkey';
 
+
+sub nonthreadtest {
+  my $algo = shift;
+  my $enc = Crypt::GCrypt->new(
+                               type => 'cipher',
+                               algorithm => $algo,
+                               #mode => 'cbc',
+                               #padding => 'null'
+                              );
+  $enc->start('encrypting');
+  $enc->setkey($key);
+
+  my $dec = Crypt::GCrypt->new(
+                               type => 'cipher',
+                               algorithm => $algo,
+                               #mode => 'cbc',
+                               #padding => 'null'
+                              );
+  $dec->start('decrypting');
+  $dec->setkey($key);
+
+  my $out = '';
+
+  my $buf = $enc->encrypt($str);
+  $out .= $dec->decrypt($buf) if (length($buf)); # should we need to test this length() ?
+  $buf = $enc->finish();
+  $out .= $dec->decrypt($buf) if (length($buf)); # should we need to test this length() ?
+  $out .= $dec->finish();
+
+  printf("Non-threaded: Failed to match output with algorithm '%s'\n", $algo) if ($str ne $out);
+  return ($str eq $out);
+}
+
+
 sub producer_thread {
   my $p = shift;
   my $algo = shift;
   my $enc = Crypt::GCrypt->new(
-			       type => 'cipher',
-			       algorithm => $algo,
-               	   #mode => 'cbc',
-               	   #padding => 'null'
-			      );
+                               type => 'cipher',
+                               algorithm => $algo,
+                               #mode => 'cbc',
+                               #padding => 'null'
+                              );
   $enc->start('encrypting');
   $enc->setkey($key);
   my $buf = $enc->encrypt($str);
@@ -42,11 +76,11 @@ sub consumer_thread {
   my $p = shift;
   my $algo = shift;
   my $dec = Crypt::GCrypt->new(
-			       type => 'cipher',
-			       algorithm => $algo,
-                   #mode => 'cbc',
-                   #padding => 'null'
-			      );
+                               type => 'cipher',
+                               algorithm => $algo,
+                               #mode => 'cbc',
+                               #padding => 'null'
+                              );
   $dec->start('decrypting');
   $dec->setkey($key);
   my $buf;
@@ -57,13 +91,16 @@ sub consumer_thread {
   }
   $p->close();
   $out .= $dec->finish();
-  printf("Failed to match output with algorithm '%s'\n", $algo) if ($str ne $out);
+  printf("Threaded: failed to match output with algorithm '%s'\n", $algo) if ($str ne $out);
   return $str eq $out;
 }
 
 
 sub testalgo {
   my $algo = shift;
+
+  ok(nonthreadtest($algo));
+
   my ($read, $write) = IO::Socket->socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC);
 
   # create in scalar context so that the result is the returned scalar:
@@ -73,10 +110,11 @@ sub testalgo {
 
 # test as many algorithms as we have.
 my @available_algos = grep Crypt::GCrypt::cipher_algo_available($_), @algos;
-plan tests => 2 * @available_algos;
+plan tests => 3 * @available_algos;
 
 testalgo($_) for @available_algos;
 ok($_->join()) for threads->list();
+
 
 
 
