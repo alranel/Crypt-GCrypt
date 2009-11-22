@@ -20,8 +20,8 @@ foreach (@ARGV) {
 # if we still need $gcrypt_libpath let's try the default 
 # locations
 if (not $gcrypt_libpath and $] >= 5.006001) {
-	require ExtUtils::Liblist;
-	($gcrypt_libpath) = ExtUtils::Liblist->ext('-lgcrypt');
+  require ExtUtils::Liblist;
+  ($gcrypt_libpath) = ExtUtils::Liblist->ext('-lgcrypt');
 }
 
 # let's check with Devel::CheckLib;
@@ -34,13 +34,13 @@ my @extras = $gcrypt_incpath ? (INC => "-I$gcrypt_incpath") : ();
 my $libs = $gcrypt_libpath ? "-L$gcrypt_libpath -lgcrypt" : '-lgcrypt';
 
 WriteMakefile(
-    'NAME'		=> 'Crypt::GCrypt',
-    'ABSTRACT'	=> 'Perl interface to the GNU libgcrypt library',
-    'AUTHOR'	=> 'Alessandro Ranellucci <aar@cpan.org>',
-    'VERSION_FROM'	=> 'lib/Crypt/GCrypt.pm',
-    'LIBS'		=> $libs,
-    'DEFINE'		=> '',
-    'CCFLAGS'       => '-funsigned-char',
-    'dist'         	=> { COMPRESS => 'gzip', SUFFIX => 'gz' },
+    'NAME'         => 'Crypt::GCrypt',
+    'ABSTRACT'     => 'Perl interface to the GNU libgcrypt library',
+    'AUTHOR'       => 'Alessandro Ranellucci <aar@cpan.org>',
+    'VERSION_FROM' => 'lib/Crypt/GCrypt.pm',
+    'LIBS'         => $libs,
+    'DEFINE'       => '',
+    'CCFLAGS'      => '-funsigned-char',
+    'dist'         => { COMPRESS => 'gzip', SUFFIX => 'gz' },
     @extras
 );

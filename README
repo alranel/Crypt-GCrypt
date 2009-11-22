@@ -21,9 +21,9 @@ ftp://ftp.gnupg.org/gcrypt/libgcrypt/
 
 and then you can install it just doing:
 
-	$  ./configure
-	$  make
-	#  make install
+    $  ./configure
+    $  make
+    #  make install
 
 Crypt::GCrypt was tested with libgcrypt 1.2.4.
 

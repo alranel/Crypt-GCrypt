@@ -17,10 +17,10 @@ ok(Crypt::GCrypt::cipher_algo_available('arcfour'));
 ok(Crypt::GCrypt::cipher_algo_available('twofish'));
 
 my $c = Crypt::GCrypt->new(
-	type => 'cipher', 
-	algorithm => 'aes',
-	mode => 'cbc',
-	padding => 'null'
+                           type => 'cipher',
+                           algorithm => 'aes',
+                           mode => 'cbc',
+                           padding => 'null'
 );
 ok(defined $c && $c->isa('Crypt::GCrypt'));
 ok($c->keylen == 16);
@@ -44,10 +44,10 @@ ok(substr($d, 0, length $p) eq $p)
   or print STDERR "[",unpack('H*',$d),"]\n";;
 
 $c = Crypt::GCrypt->new(
-	type => 'cipher', 
-	algorithm => 'aes',
-	mode => 'ecb',
-	padding => 'null'
+                        type => 'cipher',
+                        algorithm => 'aes',
+                        mode => 'ecb',
+                        padding => 'null'
 );
 $c->start('encrypting');
 $c->setkey($key);
@@ -56,9 +56,9 @@ $e .= $c->finish;
 ok($e eq $e0) or print STDERR "[",unpack('H*',$e),"]\n";
 
 $c = Crypt::GCrypt->new(
-	type => 'cipher', 
-	algorithm => 'twofish',
-	padding => 'null'
+                        type => 'cipher',
+                        algorithm => 'twofish',
+                        padding => 'null'
 );
 ok($c->keylen == 32);
 ok($c->blklen == 16);
@@ -77,9 +77,9 @@ ok(substr($d, 0, length $p) eq $p)
  or print STDERR "[$d|",unpack('H*',$d),"]\n";
 
 $c = Crypt::GCrypt->new(
-	type => 'cipher', 
-	algorithm => 'arcfour',
-	padding => 'null'
+                        type => 'cipher',
+                        algorithm => 'arcfour',
+                        padding => 'null'
 );
 ok($c->keylen == 16);
 ok($c->blklen == 1);
@@ -98,9 +98,9 @@ ok(substr($d, 0, length $p) eq $p)
 ### 'none' padding
 {
     $c = Crypt::GCrypt->new(
-    	type => 'cipher', 
-    	algorithm => 'aes',
-    	padding => 'none'
+                            type => 'cipher',
+                            algorithm => 'aes',
+                            padding => 'none'
     );
     $c->start('encrypting');
     ok(!eval {my $e2 = $c->encrypt('aaa'); 1});  # this should die

@@ -33,14 +33,14 @@ version 1.17 (2007/10/29):
       (untested)
 
 version 1.16 (2006/12/20):
-	
-	- fixed compilation issue with GCC 2.95
-	- test compatibility with Crypt::CBC 2.17
-	- minor code cleanup
+
+    - fixed compilation issue with GCC 2.95
+    - test compatibility with Crypt::CBC 2.17
+    - minor code cleanup
 
 version 1.15 (2006/01/06):
-	
-	- fixed t/05-size.t (now skips if we don't have Devel::Size)
+
+    - fixed t/05-size.t (now skips if we don't have Devel::Size)
 
 version 1.14 (2006/01/06):
 
@@ -63,11 +63,11 @@ version 1.1.1 (2005/12/22):
     - added t/03-pod.t and t/04-podcoverage.t
 
 version 1.1 (2005/10/10):
-	
-	- added finish() to handle partial blocks
-	- added padding with null and standard methods
-	- added compatibility test with Crypt::CBC
+
+    - added finish() to handle partial blocks
+    - added padding with null and standard methods
+    - added compatibility test with Crypt::CBC
 
 version 1.00 (2005/10/09):
 
-	- new
+    - new

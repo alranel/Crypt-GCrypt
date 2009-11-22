@@ -21,9 +21,9 @@ my %dgsts = (
 plan tests => 5;
 
 my $md0 = Crypt::GCrypt->new(
-			     type => 'digest',
-			     algorithm => 'sha1',
-			    );
+                             type => 'digest',
+                             algorithm => 'sha1',
+                            );
 my $result;
 
 my $md1 = $md0->clone();

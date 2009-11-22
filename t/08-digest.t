@@ -218,9 +218,9 @@ for $data (sort keys %dgsts) {
   for $algo (sort keys %{$dgsts{$data}}) {
     next unless Crypt::GCrypt::digest_algo_available($algo);
     my $md = Crypt::GCrypt->new(
-				type => 'digest',
-				algorithm => $algo,
-			       );
+                                type => 'digest',
+                                algorithm => $algo,
+                               );
     die "failed to create digest object with algorithm $algo" unless defined $md;
     $md->write($data);
     my $result = unpack('H*', $md->read());
@@ -233,10 +233,10 @@ for $data (sort keys %hmacs) {
   for $algo (sort keys %{$hmacs{$data}}) {
     next unless Crypt::GCrypt::digest_algo_available($algo);
     my $md = Crypt::GCrypt->new(
-				type => 'digest',
-				algorithm => $algo,
-				hmac => 'monkey monkey monkey monkey',
-			       );
+                                type => 'digest',
+                                algorithm => $algo,
+                                hmac => 'monkey monkey monkey monkey',
+                               );
     die "failed to create HMAC digest object with algorithm $algo" unless defined $md;
     $md->write($data);
     my $result = unpack('H*', $md->read());
