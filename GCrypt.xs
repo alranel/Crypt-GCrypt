@@ -569,25 +569,26 @@ void
 cg_setiv(gcr, ...)
     Crypt_GCrypt gcr;
     PREINIT:
-        char *iv;
+        char *buf, *param;
         size_t len;
     CODE:
+        buf = NULL;
         if (gcr->type != CG_TYPE_CIPHER)
             croak("Can't call setiv when doing non-cipher operations");
-        Newz(0, iv, gcr->blklen, char);
         if (items == 2) {
-            char *param;
             param = SvPV(ST(1), len);
-            if (len > gcr->blklen)
-                len = gcr->blklen;
-            memcpy(iv, param, len);
+            if (len < gcr->blklen) {
+                Newz(0, buf, gcr->blklen, char);
+                memcpy(buf, param, len);
+                param = buf;
+            }
         } else if (items == 1) {
-            len = 0;
+            Newz(0, buf, gcr->blklen, char);
+            param = buf;
         } else
             croak("Usage: $cipher->setiv([iv])");
-        memset(iv + len, 0, gcr->blklen - len);
-        gcry_cipher_setiv(gcr->h, iv, gcr->blklen);
-        Safefree(iv);
+        gcry_cipher_setiv(gcr->h, param, gcr->blklen);
+        Safefree(buf);
 
 void
 cg_sync(gcr)
