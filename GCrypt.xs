@@ -520,8 +520,8 @@ void
 cg_setkey(gcr, ...)
     Crypt_GCrypt gcr;
     PREINIT:
-        char *k, *pk, *s;
-        char *mykey;
+        char *k, *s;
+        char *mykey, *buf;
         gcry_ac_key_type_t keytype;
         gcry_ac_data_t keydata;
         gcry_mpi_t mpi;
@@ -529,20 +529,18 @@ cg_setkey(gcr, ...)
     CODE:
         /* Set key for cipher */
         if (gcr->type == CG_TYPE_CIPHER) {
-            Newz(0, k, gcr->keylen, char);
-            k = SvPV(ST(1), len);
+            buf = NULL;
+            mykey = SvPV(ST(1), len);
             /* If key is shorter than our algorithm's key size 
                let's pad it with zeroes */
-            if (len >= gcr->keylen) {
-                mykey = k;
-            } else {
-                Newz(0, pk, gcr->keylen, char);
-                memcpy(pk, k, len);
-                memset(pk + len, 0, gcr->keylen - len);
-                mykey = pk;
+            if (len < gcr->keylen) {
+                Newz(0, buf, gcr->keylen, char);
+                memcpy(buf, mykey, len);
+                mykey = buf;
             }
-            gcr->err = gcry_cipher_setkey(gcr->h, mykey,  gcr->keylen);
+            gcr->err = gcry_cipher_setkey(gcr->h, mykey, gcr->keylen);
             if (gcr->err != 0) croak("setkey: %s", gcry_strerror(gcr->err));
+            Safefree(buf);
         }
         
         /* Set key for asymmetric criptography */
