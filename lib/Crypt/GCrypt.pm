@@ -53,6 +53,18 @@ Crypt::GCrypt provides an object interface to the C libgcrypt library. It
 currently supports symmetric encryption/decryption and message digests, 
 while asymmetric cryptography is being worked on.
 
+=head1 BINDING INFO
+
+=head2 gcrypt_version()
+
+Returns a string indicating the running version of gcrypt.
+
+=head2 built_against_version()
+
+Returns a string indicating the version of gcrypt that this module was
+built against.  This is likely only to be useful in a debugging
+situation.
+
 =head1 SYMMETRIC CRYPTOGRAPHY
 
 =head2 cipher_algo_available()

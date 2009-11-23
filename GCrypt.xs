@@ -124,6 +124,25 @@ init_library() {
 
 MODULE = Crypt::GCrypt        PACKAGE = Crypt::GCrypt    PREFIX = cg_
 
+SV *
+cg_built_against_version()
+    CODE:
+        init_library();
+        RETVAL = newSVpvn(GCRYPT_VERSION, strlen(GCRYPT_VERSION));
+    OUTPUT:
+        RETVAL
+
+SV *
+cg_gcrypt_version()
+    INIT:
+        const char * v;
+    CODE:
+        init_library();
+        v = gcry_check_version(NULL);
+        RETVAL = newSVpvn(v, strlen(v));
+    OUTPUT:
+        RETVAL
+
 Crypt_GCrypt
 cg_new(...)
     PROTOTYPE: @

@@ -1,3 +1,5 @@
+    - added new version check functions gcrypt_version() and 
+      built_against_version() (Daniel Kahn Gillmor)
     - fixed a memory leak and other minor memory optimizations (Daniel Kahn Gillmor)
     - new cipher_algo_available() package function (Daniel Kahn Gillmor)
     - message digests (Daniel Kahn Gillmor)
