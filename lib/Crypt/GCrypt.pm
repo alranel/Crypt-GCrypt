@@ -347,7 +347,7 @@ implement certain algorithms (see digest_algo_available()).
 =item secure
 
 If this option is set to a true value, all data associated with this 
-digest will beput into non-swappable storage, if possible.
+digest will be put into non-swappable storage, if possible.
 
 =item hmac
 
