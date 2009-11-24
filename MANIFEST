@@ -17,4 +17,5 @@ t/06-multi.t
 t/07-thread.t
 t/08-digest.t
 t/09-clone-digest.t
+t/10-versions.t
 typemap
