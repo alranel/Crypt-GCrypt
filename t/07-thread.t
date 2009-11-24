@@ -94,7 +94,9 @@ sub consumer_thread {
   }
   $p->close();
   $out .= $dec->finish();
-  printf("Threaded: failed to match output with algorithm '%s'\n", $algo) if ($str ne $out);
+  printf("Threaded: failed to match output with algorithm '%s'\n".
+         "Wanted: %s\n   Got: %s\n", $algo, unpack('H*', $str),
+         unpack('H*', $out)) if ($str ne $out);
   return $str eq $out;
 }
 
