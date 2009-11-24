@@ -14,7 +14,7 @@ BEGIN { plan tests => 3 }; # <--- number of tests;
 my $g = Crypt::GCrypt::gcrypt_version();
 my $x = Crypt::GCrypt::built_against_version();
 
-printf("gcrypt version: %s\n built against: %s\n", $g, $x);
+warn sprintf("gcrypt version: %s\n built against: %s\n", $g, $x);
 
 ok($g);
 ok($x);
