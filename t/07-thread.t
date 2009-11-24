@@ -5,6 +5,7 @@
 
 use strict;
 use warnings;
+use Config;
 use Test::More;
 use ExtUtils::testlib;
 use Crypt::GCrypt;
@@ -12,7 +13,9 @@ use IO::Socket;
 
 #########################
 
-use threads;
+if (!$Config{useithreads} || !eval "use threads; 1") {
+    plan skip_all => "Skipping because your perl is not compiled with thread support";
+}
 
 my @algos = ('aes', 'twofish', 'blowfish', 'arcfour', 'cast5', 'des', 'serpent', 'seed');
 
