@@ -19,6 +19,16 @@
 #include <gcrypt.h>
 #include <string.h>
 
+#ifdef USE_ITHREADS
+    #ifdef I_PTHREAD
+        #include <pthread.h>
+        #define HAVE_PTHREAD
+    #else
+        #warning "Perl ithreads not available or not implemented with Pthread: building a non-threadsafe Crypt::GCrypt"
+    # endif
+#endif
+
+
 static const char my_name[] = "Crypt::GCrypt";
 static const char author[] = "Alessandro Ranellucci <aar@cpan.org>";
 
@@ -96,7 +106,9 @@ int find_padding (Crypt_GCrypt gcr, unsigned char *string, size_t string_len) {
     return -1;
 }
 
-GCRY_THREAD_OPTION_PTHREAD_IMPL;
+#ifdef HAVE_PTHREAD
+    GCRY_THREAD_OPTION_PTHREAD_IMPL;
+#endif
 
 void
 init_library() {
@@ -108,12 +120,14 @@ init_library() {
     return;
   }
   /* else, we need to go ahead with the full initialization: */
-  ret = gcry_control(GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
-  if (gcry_err_code(ret) != GPG_ERR_NO_ERROR)
+  #ifdef HAVE_PTHREAD
+    ret = gcry_control(GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+    if (gcry_err_code(ret) != GPG_ERR_NO_ERROR)
     croak("could not initialize libgcrypt for threads (%d: %s/%s)", 
       gcry_err_code(ret),
       gcry_strsource(ret),
       gcry_strerror(ret));
+  #endif
   
   if (!gcry_check_version(GCRYPT_VERSION))
     croak("libgcrypt version mismatch (needed: %s)", GCRYPT_VERSION);
