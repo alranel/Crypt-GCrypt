@@ -9,20 +9,25 @@ use Config;
 use Test::More;
 use ExtUtils::testlib;
 use Crypt::GCrypt;
-use IO::Socket;
-$SIG{PIPE} = 'IGNORE';
 
 #########################
 
-if (!$Config{useithreads} || !eval "use threads; 1") {
-    plan skip_all => "Skipping because your perl is not compiled with thread support";
-}
+my @algos = qw(aes twofish blowfish arcfour cast5 des serpent seed);
+my @available_algos;
 
-my @algos = ('aes', 'twofish', 'blowfish', 'arcfour', 'cast5', 'des', 'serpent', 'seed');
+if ($Config{useithreads}) {
+  use threads;
+  use Thread::Queue;
+  # test as many algorithms as we have.
+  @available_algos = grep Crypt::GCrypt::cipher_algo_available($_), @algos;
+  plan tests => 3 * @available_algos;
+
+} else {
+  plan skip_all => "Skipping because your perl is not compiled with thread support";
+}
 
 my $str = 'Four Score and Seven years ago, our fore-monkeys created a great blah blah blah';
 my $key = 'monkeymonkeymonkey';
-
 
 sub nonthreadtest {
   my $algo = shift;
@@ -58,7 +63,7 @@ sub nonthreadtest {
 
 
 sub producer_thread {
-  my $p = shift;
+  my $q = shift;
   my $algo = shift;
   my $enc = Crypt::GCrypt->new(
                                type => 'cipher',
@@ -68,16 +73,14 @@ sub producer_thread {
                               );
   $enc->start('encrypting');
   $enc->setkey($key);
-  my $buf = $enc->encrypt($str);
-  $p->write($buf);
-  $buf = $enc->finish();
-  $p->write($buf);
-  $p->shutdown(1);
-  $p->close();
+  $q->enqueue($enc->encrypt($str));
+  $q->enqueue($enc->finish());
+  $q->enqueue(undef);
+  return 1;
 }
 
 sub consumer_thread {
-  my $p = shift;
+  my $q = shift;
   my $algo = shift;
   my $dec = Crypt::GCrypt->new(
                                type => 'cipher',
@@ -88,20 +91,11 @@ sub consumer_thread {
   $dec->start('decrypting');
   $dec->setkey($key);
   my $buf;
-  my $out;
-  my $bytesreceived = 0;
-  my $thispacket = 0;
-  while (($thispacket = $p->read($buf, $dec->blklen())) ||
-         ($bytesreceived == 0)) { # keep trying if we haven't gotten
-                                  # anything yet
-    if ($thispacket) {
-      $out .= $dec->decrypt($buf);
-      $bytesreceived += $thispacket;
-    } else {
-      sleep(1); # if we got nothing initially, avoid a busy-loop
-    }
-  }
-  $p->close();
+  my $out = '';
+  do {
+    $buf = $q->dequeue();
+    $out .= $dec->decrypt($buf) if (defined $buf);
+  } while (defined $buf);
   $out .= $dec->finish();
   printf("Threaded: failed to match output with algorithm '%s'\n".
          "Wanted: %s\n   Got: %s\n", $algo, unpack('H*', $str),
@@ -115,16 +109,13 @@ sub testalgo {
 
   ok(nonthreadtest($algo));
 
-  my ($read, $write) = IO::Socket->socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC);
+  my $queue = Thread::Queue->new();
 
   # create in scalar context so that the result is the returned scalar:
-  my $con = threads->create('consumer_thread', $read, $algo);
-  my $pro = threads->create('producer_thread', $write, $algo);
+  my $con = threads->create('consumer_thread', $queue, $algo);
+  my $pro = threads->create('producer_thread', $queue, $algo);
 }
 
-# test as many algorithms as we have.
-my @available_algos = grep Crypt::GCrypt::cipher_algo_available($_), @algos;
-plan tests => 3 * @available_algos;
 
 testalgo($_) for @available_algos;
 ok($_->join()) for threads->list();
