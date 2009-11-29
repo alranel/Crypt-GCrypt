@@ -132,6 +132,34 @@ init_library() {
   if (!gcry_check_version(GCRYPT_VERSION))
     croak("libgcrypt version mismatch (needed: %s)", GCRYPT_VERSION);
 
+  /* Why do it this way?  see 
+     /usr/share/doc/libgcrypt11-doc/html/Initializing-the-library.html#sample-use-suspend-secmem
+  */
+
+  /* We don't want to see any warnings, e.g. because we have not yet
+     parsed program options which might be used to suppress such
+     warnings. */
+  gcry_control (GCRYCTL_SUSPEND_SECMEM_WARN);
+     
+  /* Allocate a pool of 32k secure memory.  This make the secure memory
+     available and also drops privileges where needed.  
+
+     This mirrors changes made in libgcrypt 1.4.3, to auto-initialize
+     the library with 32KB of secure memory if no other initialization
+     has been done.
+
+     FIXME: we should probably allow the user to choose how much 
+     secure RAM to use something like this:
+
+     use Crypt::GCrypt { secmem => 1024*1024 };
+
+  */
+  gcry_control (GCRYCTL_INIT_SECMEM, 32768, 0);
+     
+  /* It is now okay to let Libgcrypt complain when there was/is
+     a problem with the secure memory. */
+  gcry_control (GCRYCTL_RESUME_SECMEM_WARN);
+
   gcry_control(GCRYCTL_INITIALIZATION_FINISHED);
 }
 
