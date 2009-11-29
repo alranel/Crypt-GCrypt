@@ -15,9 +15,7 @@ use Crypt::GCrypt;
 my @algos = qw(aes twofish blowfish arcfour cast5 des serpent seed);
 my @available_algos;
 
-if ($Config{useithreads}) {
-  use threads;
-  use Thread::Queue;
+if ($Config{useithreads} && eval "use threads; use Thread::Queue; 1") {
   # test as many algorithms as we have.
   @available_algos = grep Crypt::GCrypt::cipher_algo_available($_), @algos;
   plan tests => 3 * @available_algos;
