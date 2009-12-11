@@ -13,7 +13,7 @@ use Crypt::GCrypt;
 
 # generated this list with the following shell snippet:
 
-# for str in '' a 38 abc "message digest" abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 12345678901234567890123456789012345678901234567890123456789012345678901234567890 ; do warn sprintf "  '%s' => {\n" "$str"; for digest in md4 md5 ripemd160 sha1 sha224 sha256 sha384 sha512; do warn sprintf "    %s => '%s', \n" "$digest" $(warn sprintf "%s" "$str" | openssl dgst -"$digest") ; done ; warn sprintf "    whirlpool => '%s',\n" $(warn sprintf "%s" "$str" | whirlpool) ; warn sprintf "  },\n" ; done
+# for str in '' a 38 abc "message digest" abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 12345678901234567890123456789012345678901234567890123456789012345678901234567890 ; do printf "  '%s' => {\n" "$str"; for digest in md4 md5 ripemd160 sha1 sha224 sha256 sha384 sha512; do printf "    %s => '%s', \n" "$digest" $(printf "%s" "$str" | openssl dgst -"$digest") ; done ; printf "    whirlpool => '%s',\n" $(printf "%s" "$str" | whirlpool) ; printf "  },\n" ; done
 
 # tiger192 digests are not currently tested as it is unclear if gcrypt
 # implements tiger properly.  For more details, read:
@@ -121,7 +121,7 @@ my %dgsts = (
 
 # generated HMAC test vectors against openssl with:
 
-# for str in '' a 38 abc "message digest" abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 12345678901234567890123456789012345678901234567890123456789012345678901234567890 ; do warn sprintf "  '%s' => {\n" "$str"; for digest in md4 md5 ripemd160 sha1 sha224 sha256 sha384 sha512; do warn sprintf "    %s => '%s',\n" "$digest" $(warn sprintf "%s" "$str" | openssl dgst -"$digest" -hmac "monkey monkey monkey monkey") ; done ; warn sprintf "  },\n" ; done
+# for str in '' a 38 abc "message digest" abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 12345678901234567890123456789012345678901234567890123456789012345678901234567890 ; do printf "  '%s' => {\n" "$str"; for digest in md4 md5 ripemd160 sha1 sha224 sha256 sha384 sha512; do printf "    %s => '%s',\n" "$digest" $(printf "%s" "$str" | openssl dgst -"$digest" -hmac "monkey monkey monkey monkey") ; done ; printf "  },\n" ; done
 
 # (i don't have HMAC test vectors for tiger or whirlpool)
 
