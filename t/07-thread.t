@@ -55,7 +55,7 @@ sub nonthreadtest {
   $out .= $dec->decrypt($buf) if (length($buf)); # should we need to test this length() ?
   $out .= $dec->finish();
 
-  printf("Non-threaded: Failed to match output with algorithm '%s'\n", $algo) if ($str ne $out);
+  warn sprintf("Non-threaded: Failed to match output with algorithm '%s'\n", $algo) if ($str ne $out);
   return ($str eq $out);
 }
 
@@ -95,7 +95,7 @@ sub consumer_thread {
     $out .= $dec->decrypt($buf) if (defined $buf);
   } while (defined $buf);
   $out .= $dec->finish();
-  printf("Threaded: failed to match output with algorithm '%s'\n".
+  warn sprintf("Threaded: failed to match output with algorithm '%s'\n".
          "Wanted: %s\n   Got: %s\n", $algo, unpack('H*', $str),
          unpack('H*', $out)) if ($str ne $out);
   return $str eq $out;
