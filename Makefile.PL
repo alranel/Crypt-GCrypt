@@ -24,9 +24,14 @@ if (not $gcrypt_libpath and $] >= 5.006001) {
   ($gcrypt_libpath) = ExtUtils::Liblist->ext('-lgcrypt');
 }
 
-# let's check with Devel::CheckLib;
+# let's check with Devel::CheckLib; we need version 1.3.0 or later
+# because earlier libgcrypt versions have broken message digest
+# calculations for HMAC of some members of the SHA-2 family (including
+# SHA-512)
 check_lib_or_exit(
-    lib => [qw(gcrypt)], libpath => $gcrypt_libpath
+    function => 'if (gcry_check_version("1.3.0")) return 0; else return 1;',
+    lib => [qw(gcrypt)],
+    libpath => $gcrypt_libpath
 );
 
 # now build the options list for WriteMakefile()
