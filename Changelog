@@ -1,3 +1,7 @@
+version 1.24_01 (2010/01/??):
+
+    - added multi-precision integers as Crypt::GCrypt::MPI (dkg)
+
 version 1.23_04 (2009/12/18):
 
     - Makefile.PL now requires libgcrypt being not older than 1.3.0

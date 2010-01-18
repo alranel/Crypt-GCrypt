@@ -69,6 +69,9 @@ struct Crypt_GCrypt_s {
 };
 typedef struct Crypt_GCrypt_s *Crypt_GCrypt;
 
+/* a Crypt_GCrypt_MPI need only be a pointer to a gcrypt MPI object */
+typedef gcry_mpi_t Crypt_GCrypt_MPI;
+
 /* return the offset of padding or -1 if none */
 int find_padding (Crypt_GCrypt gcr, unsigned char *string, size_t string_len) {
     unsigned char last_char = string[string_len-1];
@@ -794,3 +797,281 @@ cg_DESTROY(gcr)
         Safefree(gcr->buffer);
         Safefree(gcr);
 
+MODULE = Crypt::GCrypt        PACKAGE = Crypt::GCrypt::MPI    PREFIX = cgm_
+
+BOOT:
+    { /* found this method of storing constants in
+         http://blogs.sun.com/akolb/entry/pitfals_of_the_perl_xs */
+    HV *stash;
+    
+    stash = gv_stashpv("Crypt::GCrypt::MPI", TRUE);
+    newCONSTSUB(stash, "FMT_STD", newSViv(GCRYMPI_FMT_STD));
+    newCONSTSUB(stash, "FMT_PGP", newSViv(GCRYMPI_FMT_PGP));
+    newCONSTSUB(stash, "FMT_SSH", newSViv(GCRYMPI_FMT_SSH));
+    newCONSTSUB(stash, "FMT_HEX", newSViv(GCRYMPI_FMT_HEX));
+    newCONSTSUB(stash, "FMT_USG", newSViv(GCRYMPI_FMT_USG));
+    }
+
+Crypt_GCrypt_MPI
+cgm_new(...)
+    PROTOTYPE: @
+    PREINIT:
+        char *s;
+        int i, valix, secure, set, format;
+        Crypt_GCrypt_MPI src;
+        size_t len;
+        gcry_error_t err;       
+    CODE:
+        RETVAL = NULL;
+        secure = 0;
+        valix = -1;
+        format = GCRYMPI_FMT_STD;
+        set = 0;
+        s = SvPV_nolen(ST(0));
+        if (strcmp(s, "Crypt::GCrypt::MPI") == 0) {
+            i = 1;
+        } else {
+            i = 0;
+        }
+        if ((items-i > 1) && ((items-i % 2) == 1))
+            croak("Wrong number of arguments for Crypt::GCrypt::MPI->new()");
+        if (items-i == 1) {
+           /* this is the value */
+           valix = i;
+        } else {
+           /* this is a parameterized list */
+           while (i < items) {
+             s = SvPV_nolen(ST(i));
+
+             if (strcmp(s, "secure") == 0)
+                if (SvTRUE(ST(i+1)))
+                  secure = 1;
+             if (strcmp(s, "format") == 0)
+                format = SvIV(ST((i+1)));
+             if (strcmp(s, "value") == 0)
+                valix = i + 1;
+             i += 2;
+           }
+        }
+
+        /* we're copying an mpi: */
+        if ((valix >= 0) && sv_derived_from(ST(valix), "Crypt::GCrypt::MPI")) {
+          IV tmp = SvIV((SV*)SvRV(ST(valix))); /* found this incantation at */
+          src = INT2PTR(Crypt_GCrypt_MPI,tmp); /* http://cpansearch.perl.org/src/DSTH/Math-GSL-Linalg-SVD-0.0.2/SVD.c */
+          if (secure && ! gcry_mpi_get_flag(src, GCRYMPI_FLAG_SECURE)) {
+            /* we were asked for a secure MPI, but we were given an insecure one to copy */
+            RETVAL=gcry_mpi_snew(gcry_mpi_get_nbits(src));
+            if (RETVAL == NULL) XSRETURN_UNDEF;
+            gcry_mpi_set(RETVAL, src);
+          } else {
+            /* this will give us a secure MPI if a secure MPI was passed in, even if we
+               also got secure => 0 ; a bit weird, but on the safe side. */
+            RETVAL=gcry_mpi_copy(src);
+          }
+        } else {
+          if (secure) {
+            RETVAL=gcry_mpi_snew(0);
+          } else {
+            RETVAL=gcry_mpi_new(0);
+          }
+          if (RETVAL == NULL) XSRETURN_UNDEF;
+
+          /* do something with the info at valix */
+          if (valix >= 0) {
+            switch(SvTYPE(ST(valix))) {
+              case SVt_PVIV:
+                /* if negative value, we have to jump through some hoops: */
+                if (SvIV(ST(valix)) < 0) {
+                    RETVAL=gcry_mpi_set_ui(NULL, 0);
+                    gcry_mpi_sub_ui(RETVAL, RETVAL, -1*(SvIV(ST(valix))));
+                } else {
+                /* this can be dealt with by regular unsigned ints */
+                    gcry_mpi_set_ui(RETVAL, SvIV(ST(valix)));
+                }
+                break;
+              case SVt_PV:
+                /* handle bytestrings 
+                   */
+                s = SvPV(ST(valix), len);
+                src = NULL;
+                err = gcry_mpi_scan(&src, format, s, ((format == GCRYMPI_FMT_HEX) ? 0 : len), NULL);
+                if (err != 0) croak("Crypt::GCrypt::MPI::new (from string, with format %d) libgcrypt internal failure %s", format, gcry_strerror(err));
+                /* FIXME: can we "eat" the head of the the input string if format is FMT_PGP or FMT_SSH ? */
+                /* avoid memory leak: */
+                if (secure) {
+                   gcry_mpi_set(RETVAL, src);
+                   gcry_mpi_release(src);
+                } else {
+                   gcry_mpi_release(RETVAL);
+                   RETVAL = src;
+                }
+                break;
+              default:
+                croak("value argument for Crypt::GCrypt::MPI->new() must currently be either an int or another Crypt::GCrypt::MPI (%d, %d, %d)", SvTYPE(ST(valix)), valix, format);
+                break;
+            }
+          }
+        }
+    OUTPUT:
+        RETVAL
+
+void
+cgm_swap(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        gcry_mpi_swap(gcma, gcmb);
+
+void
+cgm_set(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        gcry_mpi_set(gcma, gcmb);
+
+int
+cgm_is_secure(gcm)
+    Crypt_GCrypt_MPI gcm;
+    CODE:
+        RETVAL=gcry_mpi_get_flag(gcm, GCRYMPI_FLAG_SECURE);
+    OUTPUT:
+        RETVAL
+
+int
+cgm_cmp(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        RETVAL=gcry_mpi_cmp(gcma, gcmb);
+    OUTPUT:
+        RETVAL
+
+void
+cgm_add(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        gcry_mpi_add(gcma, gcma, gcmb);
+
+void
+cgm_addm(gcma, gcmb, gcmm)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    Crypt_GCrypt_MPI gcmm;
+    CODE:
+        gcry_mpi_addm(gcma, gcma, gcmb, gcmm);
+
+void
+cgm_sub(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        gcry_mpi_sub(gcma, gcma, gcmb);
+
+void
+cgm_subm(gcma, gcmb, gcmm)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    Crypt_GCrypt_MPI gcmm;
+    CODE:
+        gcry_mpi_subm(gcma, gcma, gcmb, gcmm);
+
+void
+cgm_mul(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        gcry_mpi_mul(gcma, gcma, gcmb);
+
+void
+cgm_mulm(gcma, gcmb, gcmm)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    Crypt_GCrypt_MPI gcmm;
+    CODE:
+        gcry_mpi_mulm(gcma, gcma, gcmb, gcmm);
+
+void
+cgm_mul_2exp(gcm, e)
+    Crypt_GCrypt_MPI gcm;
+    int e;
+    CODE:
+        if (e >= 0) {
+          /* this can be dealt with by regular unsigned ints */
+          gcry_mpi_mul_2exp(gcm, gcm, e);
+        } else {
+          croak("exponent argument for Crypt::GCrypt::MPI::mul_2exp() must be an unsigned integer");
+        }
+            
+void
+cgm_div(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        /* FIXME: should we return the modulus as well, if called in a list context? */
+        gcry_mpi_div(gcma, NULL, gcma, gcmb, 0);
+
+void
+cgm_mod(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        gcry_mpi_mod(gcma, gcma, gcmb);
+
+void
+cgm_powm(gcma, gcme, gcmm)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcme;
+    Crypt_GCrypt_MPI gcmm;
+    CODE:
+        gcry_mpi_powm(gcma, gcma, gcme, gcmm);
+
+void
+cgm_invm(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        /* FIXME: should we do anything with the return value (1 if invm actually exists)? */
+        gcry_mpi_invm(gcma, gcma, gcmb);
+
+void
+cgm_gcd(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    CODE:
+        /* FIXME: should we do anything with the return value (1 if gcd == 1)? */
+        gcry_mpi_gcd(gcma, gcma, gcmb);
+
+void
+cgm_dump(gcm)
+    Crypt_GCrypt_MPI gcm;
+    CODE:
+        gcry_mpi_dump(gcm);
+
+SV *
+cgm_print(gcm, format)
+    Crypt_GCrypt_MPI gcm;
+    int format;
+    PREINIT:
+        size_t size;
+        char* buf;
+        gcry_error_t err;
+    CODE:
+        /* FIXME: make format default to FMT_STD somehow (how do we not require a parameter?) */
+        err = gcry_mpi_print(format, NULL, 0, &size,  gcm);
+        if (err != 0) croak("GCrypt::MPI::print start: %s", gcry_strerror(err));
+        /* FMT_HEX asks for an extra byte for the null char, but perl allocates that
+           already, so we treat that case special */
+        RETVAL = newSVpv("", ((format == GCRYMPI_FMT_HEX) ? size-1 : size));
+        buf = SvPV_nolen(RETVAL);
+        err = gcry_mpi_print(format, buf, size, &size,  gcm);
+        if (err != 0) croak("GCrypt::MPI::print finish: %s", gcry_strerror(err));
+    OUTPUT:
+        RETVAL
+
+void
+cgm_DESTROY(gmpi)
+    Crypt_GCrypt_MPI gmpi;
+    CODE:
+        gcry_mpi_release(gmpi);
+        gmpi = NULL;
