@@ -409,6 +409,11 @@ digest object has been read(), it may not be written to.
 libgcrypt is initialized with support for Pthread, so this module should be 
 thread safe.
 
+=head1 SEE ALSO
+
+Crypt::GCrypt::MPI supports Multi-precision integers (bignum math)
+using libgcrypt as the backend implementation.
+
 =head1 BUGS AND FEEDBACK
 
 There are no known bugs. You are very welcome to write mail to the author 
