@@ -946,6 +946,14 @@ cgm_cmp(gcma, gcmb)
     OUTPUT:
         RETVAL
 
+Crypt_GCrypt_MPI
+copy(gcm)
+    Crypt_GCrypt_MPI gcm;
+    CODE:
+        RETVAL=gcry_mpi_copy(gcm);
+    OUTPUT:
+        RETVAL
+
 void
 cgm_add(gcma, gcmb)
     Crypt_GCrypt_MPI gcma;

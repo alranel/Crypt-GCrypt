@@ -4,7 +4,7 @@
 #########################
 
 use Test;
-BEGIN { plan tests => 32 }; # <--- number of tests
+BEGIN { plan tests => 35 }; # <--- number of tests
 use ExtUtils::testlib;
 use Crypt::GCrypt::MPI;
 
@@ -99,3 +99,11 @@ ok(0 == $y->cmp($x));
 $y->sub($thirtysix);
 ok(0 == $y->cmp(Crypt::GCrypt::MPI->new(65501)));
 ok(0 == $x->cmp(Crypt::GCrypt::MPI->new(65537)));
+
+# test copy method:
+$y = $x->copy();
+ok(0 == $y->cmp($x));
+$y->sub($thirtysix);
+ok(0 == $y->cmp(Crypt::GCrypt::MPI->new(65501)));
+ok(0 == $x->cmp(Crypt::GCrypt::MPI->new(65537)));
+

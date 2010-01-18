@@ -98,6 +98,22 @@ Compares this object against another Crypt::GCrypt::MPI object,
 returning 0 if the two values are equal, positive if this value is
 greater, negative if $other is greater.
 
+=head2 copy()
+
+Returns a new Crypt::GCrypt::MPI object, with the contents identical
+to this one.  This is distinct from using the assignment operator (=).
+For example:
+
+ $b = new Crypt::GCrypt::MPI(15);
+ $a = $b;
+ $b->add(1); # $a points to the same object, so both $a and $b contain 16.
+
+ $a = $b->copy(); # $a and $b are both 16, but different objects
+ $b->add(1); # $a == 16, $b == 17
+
+If $b is a Crypt::GCrypt::MPI object, then "$a = $b->copy();" is
+identical to "$a = Crypt::GCrypt::MPI->new($b);"
+
 =head1 CALCULATIONS
 
 =head2 add($other)
