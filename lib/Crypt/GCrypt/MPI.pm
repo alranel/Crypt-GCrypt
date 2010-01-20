@@ -165,7 +165,7 @@ Find the multiplicative inverse of this MPI, modulo $modulus.
 
 =head2 gcd($other)
 
-Find the greatest common divisor of this MPI.
+Find the greatest common divisor of this MPI and $other.
 
 =head1 OUTPUT AND DEBUGGING
 
