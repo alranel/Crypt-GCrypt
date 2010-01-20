@@ -1062,7 +1062,7 @@ cgm_print(gcm, format)
     int format;
     PREINIT:
         size_t size;
-        char* buf;
+        unsigned char* buf;
         gcry_error_t err;
     CODE:
         /* FIXME: make format default to FMT_STD somehow (how do we not require a parameter?) */
@@ -1071,7 +1071,7 @@ cgm_print(gcm, format)
         /* FMT_HEX asks for an extra byte for the null char, but perl allocates that
            already, so we treat that case special */
         RETVAL = newSVpv("", ((format == GCRYMPI_FMT_HEX) ? size-1 : size));
-        buf = SvPV_nolen(RETVAL);
+        buf = (unsigned char*) SvPV_nolen(RETVAL);
         err = gcry_mpi_print(format, buf, size, &size,  gcm);
         if (err != 0) croak("GCrypt::MPI::print finish: %s", gcry_strerror(err));
     OUTPUT:
