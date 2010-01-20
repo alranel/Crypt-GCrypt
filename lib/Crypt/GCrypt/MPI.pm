@@ -16,10 +16,7 @@ package Crypt::GCrypt::MPI;
 use strict;
 use warnings;
 
-our $VERSION = '1.23';
-
-require XSLoader;
-XSLoader::load('Crypt::GCrypt', $VERSION);
+use Crypt::GCrypt;
 
 1;
 __END__
@@ -214,7 +211,7 @@ Crypt::GCrypt::MPI does not currently auto-convert to and from
 Math::BigInt objects, even though it should.
 
 Other than that, here are no known bugs. You are very welcome to write
-mail to the author (aar@cpan.org) with your contributions, comments,
+mail to the maintainer (aar@cpan.org) with your contributions, comments,
 suggestions, bug reports or complaints.
 
 =head1 AUTHORS AND CONTRIBUTORS
