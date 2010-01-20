@@ -4,7 +4,7 @@
 #########################
 
 use Test;
-BEGIN { plan tests => 35 }; # <--- number of tests
+BEGIN { plan tests => 36 }; # <--- number of tests
 use ExtUtils::testlib;
 use Crypt::GCrypt::MPI;
 
