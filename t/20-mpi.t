@@ -107,3 +107,10 @@ $y->sub($thirtysix);
 ok(0 == $y->cmp(Crypt::GCrypt::MPI->new(65501)));
 ok(0 == $x->cmp(Crypt::GCrypt::MPI->new(65537)));
 
+{ my $a = $y;
+ $a->sub($thirtysix);
+};
+
+$y->sub($thirtysix);
+
+ok(0 == $y->cmp(Crypt::GCrypt::MPI->new(65429)));

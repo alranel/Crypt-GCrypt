@@ -98,12 +98,11 @@ greater, negative if $other is greater.
 =head2 copy()
 
 Returns a new Crypt::GCrypt::MPI object, with the contents identical
-to this one.  This is better than using the assignment operator (=).
-For example:
+to this one.  This is different from using the assignment operator
+(=), which just makes two references to the same object.  For example:
 
  $b = new Crypt::GCrypt::MPI(15);
- $a = $b; # DANGER! this may cause a double-free
-          # when $a and $b fall out of scope.
+ $a = $b;
  $b->add(1); # $a points to the same object,
              # so both $a and $b contain 16.
 
