@@ -95,6 +95,12 @@ Compares this object against another Crypt::GCrypt::MPI object,
 returning 0 if the two values are equal, positive if this value is
 greater, negative if $other is greater.
 
+=head2 mutually_prime($other)
+
+Compares this object against another Crypt::GCrypt::MPI object,
+returning true only if the two values share no factors in common other
+than 1.
+
 =head2 copy()
 
 Returns a new Crypt::GCrypt::MPI object, with the contents identical

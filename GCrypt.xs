@@ -1100,6 +1100,19 @@ cgm_gcd(sv_gcma, gcmb)
         /* FIXME: should we do anything with the return value (1 if gcd == 1)? */
         XSRETURN(1);
 
+bool
+cgm_mutually_prime(gcma, gcmb)
+    Crypt_GCrypt_MPI gcma;
+    Crypt_GCrypt_MPI gcmb;
+    PREINIT:
+        Crypt_GCrypt_MPI gcd;
+    CODE:
+        gcd = gcry_mpi_new(0);
+        RETVAL=gcry_mpi_gcd(gcd, gcma, gcmb);
+        gcry_mpi_release(gcd);
+    OUTPUT:
+        RETVAL
+
 void
 cgm_dump(sv_gcm)
     SV* sv_gcm;

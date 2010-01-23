@@ -4,7 +4,7 @@
 #########################
 
 use Test;
-BEGIN { plan tests => 36 }; # <--- number of tests
+BEGIN { plan tests => 39 }; # <--- number of tests
 use ExtUtils::testlib;
 use Crypt::GCrypt::MPI;
 
@@ -114,3 +114,10 @@ ok(0 == $x->cmp(Crypt::GCrypt::MPI->new(65537)));
 $y->sub($thirtysix);
 
 ok(0 == $y->cmp(Crypt::GCrypt::MPI->new(65429)));
+
+$x = Crypt::GCrypt::MPI->new(15);
+$y = Crypt::GCrypt::MPI->new(16);
+$z = Crypt::GCrypt::MPI->new(3);
+ok($x->mutually_prime($y));
+ok($y->mutually_prime($z));
+ok(!$x->mutually_prime($z));
