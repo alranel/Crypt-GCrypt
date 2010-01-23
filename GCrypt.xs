@@ -1097,7 +1097,6 @@ cgm_gcd(sv_gcma, gcmb)
         Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_gcd(gcma, gcma, gcmb);
         ST(0) = sv_gcma;
-        /* FIXME: should we do anything with the return value (1 if gcd == 1)? */
         XSRETURN(1);
 
 bool
