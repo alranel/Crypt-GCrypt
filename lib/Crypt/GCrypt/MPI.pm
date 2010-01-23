@@ -116,6 +116,16 @@ identical to "$a = Crypt::GCrypt::MPI->new($b);"
 
 =head1 CALCULATIONS
 
+All calculation operations modify the object they are called on, and
+return the same object, so you can chain them like this:
+
+ $g->addm($a, $m)->mulm($b, $m)->gcd($x);
+
+If you don't want an operation to affect the initial object, use the
+copy() operator:
+
+ $h = $g->copy()->addm($a, $m)->mulm($b, $m)->gcd($x);
+
 =head2 add($other)
 
 Adds the value of $other to this MPI.
