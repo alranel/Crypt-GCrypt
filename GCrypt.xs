@@ -109,6 +109,14 @@ int find_padding (Crypt_GCrypt gcr, unsigned char *string, size_t string_len) {
     return -1;
 }
 
+Crypt_GCrypt_MPI
+dereference_gcm(SV* sv_gcm) {
+    if (!sv_derived_from(sv_gcm, "Crypt::GCrypt::MPI"))
+        croak("Not a Crypt::GCrypt::MPI object");
+    IV tmp = SvIV((SV*)SvRV(sv_gcm));
+    return INT2PTR(Crypt_GCrypt_MPI, tmp);
+}
+
 #ifdef HAVE_PTHREAD
     GCRY_THREAD_OPTION_PTHREAD_IMPL;
 #endif
@@ -916,20 +924,26 @@ cgm_new(...)
         RETVAL
 
 void
-cgm_swap(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_swap(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_swap(gcma, gcmb);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_set(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_set(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_set(gcma, gcmb);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
-int
+bool
 cgm_is_secure(gcm)
     Crypt_GCrypt_MPI gcm;
     CODE:
@@ -947,7 +961,7 @@ cgm_cmp(gcma, gcmb)
         RETVAL
 
 Crypt_GCrypt_MPI
-copy(gcm)
+cgm_copy(gcm)
     Crypt_GCrypt_MPI gcm;
     CODE:
         RETVAL=gcry_mpi_copy(gcm);
@@ -955,106 +969,145 @@ copy(gcm)
         RETVAL
 
 void
-cgm_add(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_add(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_add(gcma, gcma, gcmb);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_addm(gcma, gcmb, gcmm)
-    Crypt_GCrypt_MPI gcma;
+cgm_addm(sv_gcma, gcmb, gcmm)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
     Crypt_GCrypt_MPI gcmm;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_addm(gcma, gcma, gcmb, gcmm);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_sub(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_sub(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_sub(gcma, gcma, gcmb);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_subm(gcma, gcmb, gcmm)
-    Crypt_GCrypt_MPI gcma;
+cgm_subm(sv_gcma, gcmb, gcmm)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
     Crypt_GCrypt_MPI gcmm;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_subm(gcma, gcma, gcmb, gcmm);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_mul(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_mul(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_mul(gcma, gcma, gcmb);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_mulm(gcma, gcmb, gcmm)
-    Crypt_GCrypt_MPI gcma;
+cgm_mulm(sv_gcma, gcmb, gcmm)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
     Crypt_GCrypt_MPI gcmm;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_mulm(gcma, gcma, gcmb, gcmm);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_mul_2exp(gcm, e)
-    Crypt_GCrypt_MPI gcm;
+cgm_mul_2exp(sv_gcm, e)
+    SV* sv_gcm;
     int e;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcm = dereference_gcm(sv_gcm);
         if (e >= 0) {
           /* this can be dealt with by regular unsigned ints */
           gcry_mpi_mul_2exp(gcm, gcm, e);
         } else {
           croak("exponent argument for Crypt::GCrypt::MPI::mul_2exp() must be an unsigned integer");
         }
+        ST(0) = sv_gcm;
+        XSRETURN(1);
             
 void
-cgm_div(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_div(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
-        /* FIXME: should we return the modulus as well, if called in a list context? */
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_div(gcma, NULL, gcma, gcmb, 0);
+        ST(0) = sv_gcma;
+        /* FIXME: should we return the modulus as well, if called in a list context? */
+        XSRETURN(1);
 
 void
-cgm_mod(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_mod(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_mod(gcma, gcma, gcmb);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_powm(gcma, gcme, gcmm)
-    Crypt_GCrypt_MPI gcma;
+cgm_powm(sv_gcma, gcme, gcmm)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcme;
     Crypt_GCrypt_MPI gcmm;
-    CODE:
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_powm(gcma, gcma, gcme, gcmm);
+        ST(0) = sv_gcma;
+        XSRETURN(1);
 
 void
-cgm_invm(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_invm(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
-        /* FIXME: should we do anything with the return value (1 if invm actually exists)? */
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_invm(gcma, gcma, gcmb);
+        ST(0) = sv_gcma;
+        /* FIXME: should we do anything with the return value (1 if invm actually exists)? */
+        XSRETURN(1);
 
 void
-cgm_gcd(gcma, gcmb)
-    Crypt_GCrypt_MPI gcma;
+cgm_gcd(sv_gcma, gcmb)
+    SV* sv_gcma;
     Crypt_GCrypt_MPI gcmb;
-    CODE:
-        /* FIXME: should we do anything with the return value (1 if gcd == 1)? */
+    PPCODE:
+        Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_gcd(gcma, gcma, gcmb);
+        ST(0) = sv_gcma;
+        /* FIXME: should we do anything with the return value (1 if gcd == 1)? */
+        XSRETURN(1);
 
 void
-cgm_dump(gcm)
-    Crypt_GCrypt_MPI gcm;
-    CODE:
+cgm_dump(sv_gcm)
+    SV* sv_gcm;
+    PPCODE:
+        Crypt_GCrypt_MPI gcm = dereference_gcm(sv_gcm);
         gcry_mpi_dump(gcm);
+        ST(0) = sv_gcm;
+        XSRETURN(1);
 
 SV *
 cgm_print(gcm, format)

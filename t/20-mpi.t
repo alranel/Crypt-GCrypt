@@ -19,8 +19,8 @@ my $minusforty = Crypt::GCrypt::MPI->new(-40); # make simple MPI with negative i
 ok(defined $minusforty);
 my $zero = Crypt::GCrypt::MPI->new(0);
 ok(defined $zero);
-$empty->set($zero);
-ok($zero->cmp($empty) == 0);
+
+ok($empty->set($zero)->cmp($zero) == 0);
 ok($zero->cmp($thirtysix) < 0);
 ok($thirtysix->cmp($zero) > 0);
 
