@@ -1054,7 +1054,7 @@ cgm_div(sv_gcma, gcmb)
         Crypt_GCrypt_MPI gcma = dereference_gcm(sv_gcma);
         gcry_mpi_div(gcma, NULL, gcma, gcmb, 0);
         ST(0) = sv_gcma;
-        /* FIXME: should we return the modulus as well, if called in a list context? */
+        /* FIXME: should we return the remainder as well, if called in a list context? */
         XSRETURN(1);
 
 void
