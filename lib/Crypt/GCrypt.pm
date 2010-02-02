@@ -424,7 +424,7 @@ or complaints.
 
 Alessandro Ranellucci E<lt>aar@cpan.orgE<gt>
 
-Daniel Kahn Gillmor (message digests) E<lt>dkg@fifthhorseman.net<gt>
+Daniel Kahn Gillmor (message digests) E<lt>dkg@fifthhorseman.netE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

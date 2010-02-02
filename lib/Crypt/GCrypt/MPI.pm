@@ -231,7 +231,7 @@ suggestions, bug reports or complaints.
 
 =head1 AUTHORS AND CONTRIBUTORS
 
-Daniel Kahn Gillmor E<lt>dkg@fifthhorseman.net<gt>
+Daniel Kahn Gillmor E<lt>dkg@fifthhorseman.netE<gt>
 
 Alessandro Ranellucci E<lt>aar@cpan.orgE<gt>
 
