@@ -1,4 +1,4 @@
-version 1.24_01 (2010/01/??):
+version 1.24 (2010/02/02):
 
     - added multi-precision integers as Crypt::GCrypt::MPI (dkg)
 
