@@ -20,6 +20,8 @@ our $VERSION = '1.24';
 require XSLoader;
 XSLoader::load('Crypt::GCrypt', $VERSION);
 
+sub CLONE_SKIP { 1 }
+
 1;
 __END__
 
