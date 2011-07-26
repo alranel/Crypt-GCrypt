@@ -47,5 +47,15 @@ WriteMakefile(
     'DEFINE'       => '',
     'CCFLAGS'      => '-funsigned-char',
     'dist'         => { COMPRESS => 'gzip', SUFFIX => 'gz' },
+    'DISTNAME' => 'Crypt-GCrypt',
+    'LICENSE' => 'perl',
+    'test' => {
+        'TESTS' => 't/*.t'
+    },
+    'META_MERGE' => {
+        resources => {
+            repository => 'git://github.com/alexrj/Crypt-GCrypt.git',
+        },
+    },
     @extras
 );

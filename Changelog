@@ -1,3 +1,5 @@
+version 1.25 (2011/07/26):
+
     - setting CLONE_SKIP to avoid Crypt::GCrypt objects to be shared
       among threads (fixes #55127)
 
