@@ -45,7 +45,7 @@ WriteMakefile(
     'VERSION_FROM' => 'lib/Crypt/GCrypt.pm',
     'LIBS'         => $libs,
     'DEFINE'       => '',
-    'CCFLAGS'      => '-funsigned-char',
+    'CCFLAGS'      => "-funsigned-char $Config{ccflags}",
     'dist'         => { COMPRESS => 'gzip', SUFFIX => 'gz' },
     'DISTNAME' => 'Crypt-GCrypt',
     'LICENSE' => 'perl',
