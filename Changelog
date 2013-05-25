@@ -1,6 +1,7 @@
 version 1.26 (2013/05/13):
 
     - updated Devel::CheckLib for compatibility with perl 5.18
+      (thanks Pavel Shaydo)
     - POD encoding fix
 
 version 1.25 (2011/07/26):
