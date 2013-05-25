@@ -1,3 +1,8 @@
+version 1.26 (2013/05/13):
+
+    - updated Devel::CheckLib for compatibility with perl 5.18
+    - POD encoding fix
+
 version 1.25 (2011/07/26):
 
     - setting CLONE_SKIP to avoid Crypt::GCrypt objects to be shared
