@@ -21,6 +21,8 @@ use Crypt::GCrypt;
 1;
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 Crypt::GCrypt::MPI - Perl interface to multi-precision integers from the GNU Cryptographic library
